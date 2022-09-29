@@ -1,10 +1,15 @@
+using Microsoft.EntityFrameworkCore;
+
 namespace Assignment3.Entities;
 
-
-public class TagRepository : ITagRepository
+public sealed class TagRepository : ITagRepository
 {
     private readonly KanbanContext _context;
 
+    public TagRepository(KanbanContext context)
+    {
+        _context = context;
+    }
     public (Response Response, int TagId) Create(TagCreateDTO tag)
     {
         var entity = _context.Tags.FirstOrDefault(c => c.Name == tag.Name);
@@ -12,22 +17,21 @@ public class TagRepository : ITagRepository
 
         if (entity is null)
         {
-            entity = new Tags(tag.Name);
+            entity = new Tag(tag.Name);
 
             _context.Tags.Add(entity);
             _context.SaveChanges();
 
-            response = Created;
+            response = Response.Created;
         }
         else
         {
-            response = Conflict;
+            response = Response.Conflict;
         }
 
-        var created = new TagCreateDTO(entity.Name);
+        var created = new TagDTO(entity.Id, entity.Name);
 
-        return (response, );
-
+        return (response, created.Id);
     }
 
     public Response Delete(int tagId, bool force = false)
@@ -56,16 +60,40 @@ public class TagRepository : ITagRepository
 
     public TagDTO Read(int tagId)
     {
-        throw new NotImplementedException();
+        var tag = from t in _context.Tags
+                    where t.Id == tagId
+                     select new TagDTO(t.Id, t.Name);
+
+        return (TagDTO) tag;
     }
 
     public IReadOnlyCollection<TagDTO> ReadAll()
     {
-        throw new NotImplementedException();
+        var tags = from t in _context.Tags
+                    select new TagDTO(t.Id, t.Name);
+        return tags.ToList();
     }
 
     public Response Update(TagUpdateDTO tag)
     {
-        throw new NotImplementedException();
+        var entity = _context.Tags.Find(tag.Id);
+        Response response;
+
+        if (entity is null)
+        {
+            response = Response.NotFound;
+        }
+        else if (_context.Tags.FirstOrDefault(c => c.Id != tag.Id && c.Name == tag.Name) != null)
+        {
+            response = Response.Conflict;
+        }
+        else
+        {
+            entity.Name = tag.Name;
+            _context.SaveChanges();
+            response = Response.Updated;
+        }
+
+        return response;
     }
 }
