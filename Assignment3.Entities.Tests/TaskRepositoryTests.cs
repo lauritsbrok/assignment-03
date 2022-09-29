@@ -21,7 +21,7 @@ public class TaskRepositoryTests
     }
     private readonly KanbanContext _context;
     private readonly TaskRepository _repository;
-    [Fact]
+    /*[Fact]
     public void Create_given_Task_returns_Created_with_Task()
     {
         var (response, created) = _repository.Create(new TaskCreateDTO("test 3", 0, "test description 3", new List<string>()));
@@ -29,7 +29,7 @@ public class TaskRepositoryTests
         response.Should().Be(Response.Created);
 
         created.Should().Be(1);
-    }
+    }*/
 
     public void Dispose()
     {
