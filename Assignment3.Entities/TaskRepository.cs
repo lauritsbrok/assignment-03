@@ -81,24 +81,35 @@ public sealed class TaskRepository : ITaskRepository
 
     public IReadOnlyCollection<TaskDTO> ReadAllByState(Core.State state)
     {
-        throw new NotImplementedException();
+        var tasks = from t in _context.Tasks
+                    where t.State == state
+                    select new TaskDTO (t.Id, t.Title, t.AssignedTo.Name, (IReadOnlyCollection<string>) t.Tags, t.State);
+        return (IReadOnlyCollection<TaskDTO>) tasks;
     }
 
     public IReadOnlyCollection<TaskDTO> ReadAllByTag(string tag)
     {
-        throw new NotImplementedException();
+        var tasks = from t in _context.Tasks
+                    select new TaskDTO (t.Id, t.Title, t.AssignedTo.Name, (IReadOnlyCollection<string>) t.Tags, t.State);
+        return (IReadOnlyCollection<TaskDTO>) tasks.Where(p => p.Tags.Contains(tag));
     }
 
     public IReadOnlyCollection<TaskDTO> ReadAllByUser(int userId)
     {
-        throw new NotImplementedException();
+        var tasks = from t in _context.Tasks
+                    where t.AssignedTo.Id == userId
+                    select new TaskDTO (t.Id, t.Title, t.AssignedTo.Name, (IReadOnlyCollection<string>) t.Tags, t.State);
+        return (IReadOnlyCollection<TaskDTO>) tasks;
     }
 
     public IReadOnlyCollection<TaskDTO> ReadAllRemoved()
     {
-        throw new NotImplementedException();
+        var tasks = from t in _context.Tasks
+                    where t.State == State.Removed
+                    select new TaskDTO (t.Id, t.Title, t.AssignedTo.Name, (IReadOnlyCollection<string>) t.Tags, t.State);
+        return (IReadOnlyCollection<TaskDTO>) tasks;
     }
-
+    
     public Response Update(TaskUpdateDTO task)
     {
         throw new NotImplementedException();
